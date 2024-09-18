@@ -1,8 +1,15 @@
-#ifndef SOUNDEX_H
-#define SOUNDEX_H
+#ifndef SOUNDEX_HPP
+#define SOUNDEX_HPP
 
-#include <string>
+#include <string> 
 
-std::string generateSoundex(const std::string& name);
+class Soundex {
+public:
+    static std::string generateSoundex(const std::string& name); 
 
-#endif // SOUNDEX_H
+private:
+    static char getMappedSoundexCode(char c);
+    static bool SoundexCodeCheck(char code, char prevCode);
+};
+
+#endif // SOUNDEX_HPP
