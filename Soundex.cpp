@@ -1,42 +1,57 @@
-#include "Soundex.h"
-#include <unordered_map>
 #include <cctype>
 #include <string>
+#include <unordered_map>
 
-std::string Soundex::generateSoundex(const std::string& name) {
-    if (name.empty()) return "0000";
 
-    std::string result(1, std::toupper(name[0])); 
-    char prevCode = getMappedSoundexCode(name[0]);
-    size_t length = 1;
 
-    for (size_t i = 1; i < name.length() && length < 4; ++i) {
-        char currentCode = getMappedSoundexCode(name[i]);
-        if (SoundexCodeCheck(currentCode, prevCode)) {
-            result += currentCode;
-            prevCode = currentCode;
-            length++;
-        }
-    }
-
-    return result.append(4 - result.length(), '0'); 
+// Function to get the Soundex code for a given input string 
+char getSoundexCode(char c, const std::unordered_map<char, char>& soundexMap)
+{
+    char upperChar = toupper(c);
+    auto it = soundexMap.find(upperChar);
+    return it != soundexMap.end() ? it->second : '0';
 }
 
-char Soundex::getMappedSoundexCode(char c) {
-    static const std::unordered_map<char, char> soundexMap {
-        {'A', '0'}, {'E', '0'}, {'I', '0'}, {'O', '0'}, {'U', '0'}, {'Y', '0'}, {'H', '0'}, {'W', '0'},
-        {'B', '1'}, {'F', '1'}, {'P', '1'}, {'V', '1'},
-        {'C', '2'}, {'G', '2'}, {'J', '2'}, {'K', '2'},
-        {'Q', '2'}, {'S', '2'}, {'X', '2'}, {'Z', '2'},
-        {'D', '3'}, {'T', '3'},
-        {'L', '4'},
-        {'M', '5'}, {'N', '5'},
-        {'R', '6'}
-    };
-    auto it = soundexMap.find(toupper(c));
-    return (it != soundexMap.end()) ? it->second : '0';
-}
 
-bool Soundex::SoundexCodeCheck(char code, char prevCode) {
-    return code != '0' && code != prevCode;
+
+std::string generateSoundex(const std::string& name)
+{
+    if (name.empty()) return "";
+
+
+
+    // Soundex code to mapthe keys and values
+    static const std::unordered_map<char, char> soundexMap = {
+        {'B', '1'}, {'F', '1'}, {'P', '1'}, {'V', '1'},
+        {'C', '2'}, {'G', '2'}, {'J', '2'}, {'K', '2'}, {'Q', '2'}, {'S', '2'}, {'X', '2'}, {'Z', '2'},
+        {'D', '3'}, {'T', '3'},
+        {'L', '4'},
+        {'M', '5'}, {'N', '5'},
+        {'R', '6'}
+    };
+
+
+
+    std::string soundex;
+    soundex += toupper(name[0]);  // Initilizing the string first letter
+    char prevCode = getSoundexCode(soundex[0], soundexMap);  
+
+
+
+    for (size_t Char = 1; Char < name.length() && soundex.length() < 4; ++Char) 
+    {
+        char code = getSoundexCode(name[Char], soundexMap);
+        if (code != '0' && code != prevCode) {
+            soundex += code;
+            prevCode = code;
+        }
+    }
+
+
+
+    soundex.append(4 - soundex.length(), '0');  // Pad with '0's if needed
+
+
+
+    return soundex;
 }
