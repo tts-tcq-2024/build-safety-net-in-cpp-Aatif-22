@@ -1,36 +1,37 @@
-#include "Soundex.h"
 #include <cctype>
-
-char getSoundexCode(char c) {
-    c = toupper(c);
-    switch (c) {
-        case 'B': case 'F': case 'P': case 'V': return '1';
-        case 'C': case 'G': case 'J': case 'K': case 'Q': case 'S': case 'X': case 'Z': return '2';
-        case 'D': case 'T': return '3';
-        case 'L': return '4';
-        case 'M': case 'N': return '5';
-        case 'R': return '6';
-        default: return '0'; // For A, E, I, O, U, H, W, Y
-    }
+#include <string>
+#include <unordered_map>
+ 
+char getSoundexCode(char c, const std::unordered_map<char, char>& soundexMap) {
+   char upperChar = toupper(c);
+   auto it = soundexMap.find(upperChar);
+   return it != soundexMap.end() ? it->second : '0';
 }
-
+ 
 std::string generateSoundex(const std::string& name) {
-    if (name.empty()) return "";
-
-    std::string soundex(1, toupper(name[0]));
-    char prevCode = getSoundexCode(name[0]);
-
-    for (size_t i = 1; i < name.length() && soundex.length() < 4; ++i) {
-        char code = getSoundexCode(name[i]);
-        if (code != '0' && code != prevCode) {
-            soundex += code;
-            prevCode = code;
-        }
-    }
-
-    while (soundex.length() < 4) {
-        soundex += '0';
-    }
-
-    return soundex;
+   if (name.empty()) return "";
+ 
+   static const std::unordered_map<char, char> soundexMap = {
+       {'B', '1'}, {'F', '1'}, {'P', '1'}, {'V', '1'},
+       {'C', '2'}, {'G', '2'}, {'J', '2'}, {'K', '2'}, {'Q', '2'}, {'S', '2'}, {'X', '2'}, {'Z', '2'},
+       {'D', '3'}, {'T', '3'},
+       {'L', '4'},
+       {'M', '5'}, {'N', '5'},
+       {'R', '6'}
+   };
+ 
+   std::string soundex(1, toupper(name[0]));  // Start with the first letter
+   char prevCode = getSoundexCode(soundex[0], soundexMap);
+ 
+   for (size_t i = 1; i < name.length() && soundex.length() < 4; ++i) {
+       char code = getSoundexCode(name[i], soundexMap);
+       if (code != '0' && code != prevCode) {
+           soundex += code;
+           prevCode = code;
+       }
+   }
+ 
+   soundex.append(4 - soundex.length(), '0');  // Pad with '0's if needed
+  
+   return soundex;
 }
